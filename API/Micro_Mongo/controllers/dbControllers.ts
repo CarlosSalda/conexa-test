@@ -34,7 +34,7 @@ async function getNewPaginated(totalPages: number, limit: number, filter: string
         limit: limit,
     };
 
-    return await User.paginate({}, options);
+    return await User.paginate({email: {$regex:filter, $options: 'i'} }, options);
 }
 
 const register = async (req: Request, res: Response) => {
@@ -81,21 +81,21 @@ const users = async (req: Request, res: Response) => {
 const usersPagination = async (req: Request, res: Response) => {
     try {
         const token = req.headers.authorization;
+        handleToken(token!);
+        console.log(req.query)
         // Necesitaba hacer una doble verificacion de si index o limit es "<= 0"
         // si lo es devuelve 1, sino lo es devuelve el valor que viene en la query por defecto
         const index = req.query.index !== 'undefined'  ? (Number(req.query.index) <= 0 ? 1 : Number(req.query.index)) : 1;
-        const limit = req.query.limit !== 'undefined'  ? (Number(req.query.limit) <= 0 ? 1 : Number(req.query.limit)) : 3;
-        
+        const limit = req.query.limit !== 'undefined'  ? (Number(req.query.limit) <= 0 ? 1 : Number(req.query.limit)) : 5;
+
         const filter = req.query.filter?.toString() || '';
-        const regex = new RegExp(filter, 'i');
-        handleToken(token!);
 
         const options = {
             page: index,
             limit: limit
         };
 
-        const response = await User.paginate({email: regex}, options);
+        const response = await User.paginate({email: {$regex:filter, $options: 'i' }}, options);
         //Esto lo hago por si el usuario ingresa un index mayor al total de paginas. Para que devuelva la última pagina
         if (index && index > response.totalPages) {
             const new_pagination = await getNewPaginated(response.totalPages, limit, filter)

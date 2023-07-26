@@ -6,6 +6,7 @@ const port = process.env.PORT_BUSINESS || process.env.PORT;
 const userRoutes = require('./routes/user');
 
 app.use((req, res, next) => {
+    console.log(req.headers.origin, process.env.URL_BASE_LOGING, req.originalUrl)
     if(req.headers.origin === process.env.URL_BASE_LOGING && req.originalUrl.includes('/api/users')) next()
     else return res.status(401).json({error: "Unauthorized"})
 })
