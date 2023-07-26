@@ -28,13 +28,13 @@ function handleUserError(error: any, res: Response) {
     res.status(500).json({ error: error.message });
 }
 
-async function getNewPaginated(totalPages: number, limit: number, filter: string) {
+async function getNewPaginated(totalPages: number, limit: number, regex: {}) {
     const options = {
         page: totalPages,
         limit: limit,
     };
 
-    return await User.paginate({email: {$regex:filter, $options: 'i'} }, options);
+    return await User.paginate(regex, options);
 }
 
 const register = async (req: Request, res: Response) => {
@@ -82,23 +82,23 @@ const usersPagination = async (req: Request, res: Response) => {
     try {
         const token = req.headers.authorization;
         handleToken(token!);
-        console.log(req.query)
         // Necesitaba hacer una doble verificacion de si index o limit es "<= 0"
         // si lo es devuelve 1, sino lo es devuelve el valor que viene en la query por defecto
         const index = req.query.index !== 'undefined'  ? (Number(req.query.index) <= 0 ? 1 : Number(req.query.index)) : 1;
         const limit = req.query.limit !== 'undefined'  ? (Number(req.query.limit) <= 0 ? 1 : Number(req.query.limit)) : 5;
 
-        const filter = req.query.filter?.toString() || '';
+        const filter = req.query.filter;
+        const regex = filter !== 'undefined' ? {email: {$regex:filter, $options: 'i'} } : {};
 
         const options = {
             page: index,
             limit: limit
         };
 
-        const response = await User.paginate({email: {$regex:filter, $options: 'i' }}, options);
+        const response = await User.paginate(regex, options);
         //Esto lo hago por si el usuario ingresa un index mayor al total de paginas. Para que devuelva la última pagina
         if (index && index > response.totalPages) {
-            const new_pagination = await getNewPaginated(response.totalPages, limit, filter)
+            const new_pagination = await getNewPaginated(response.totalPages, limit, regex)
             return res.status(200).json(new_pagination);
         }
 
