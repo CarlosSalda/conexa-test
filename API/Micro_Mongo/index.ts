@@ -3,7 +3,7 @@ const app = express();
 require('dotenv').config();
 require('./database');
 
-const port = process.env.PORT_MONGO;
+const port = process.env.PORT_MONGO || process.env.PORT;
 const userRoutes = require('./routes/user');
 
 app.use(express.json());

@@ -2,7 +2,7 @@
 import express from 'express';
 const app = express();
 require('dotenv').config();
-const port = process.env.PORT_BUSINESS;
+const port = process.env.PORT_BUSINESS || process.env.PORT;
 const userRoutes = require('./routes/user');
 
 app.use((req, res, next) => {
