@@ -1,0 +1,9 @@
+[runtime]
+  name = "nodejs"
+  version = "18.x"
+  release = "18.x"
+
+[build]
+  command = "npm install && npm run build"
+  # For Node.js 14, use "14.x" as the node_version.
+  node_version = "18.x"
